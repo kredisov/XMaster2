@@ -1,0 +1,781 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="XMaster" default="war" basedir=".">
+  <!-- Configure path to GWT SDK -->
+  <property name="gwt.sdk" location="C:\Projects\Liga\XMasterLib\WebContent\WEB-INF\lib" />
+
+  <path id="project.class.path">
+    <pathelement location="war/WEB-INF/classes"/>
+    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+    <!-- Add any additional non-server libs (such as JUnit) -->
+    <fileset dir="${gwt.sdk}" includes="**/*.jar"/>
+  </path>
+
+  <target name="libs" description="Copy libs to WEB-INF/lib">
+    <mkdir dir="war/WEB-INF/lib" />
+    <!--<copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />-->
+    <!-- Add any additional server libs that need to be copied -->
+  </target>
+
+  <target name="javac" depends="libs" description="Compile java source">
+    <mkdir dir="war/WEB-INF/classes"/>
+    <javac srcdir="src" includes="**" encoding="utf-8"
+        destdir="war/WEB-INF/classes"
+        source="1.5" target="1.5" nowarn="true"
+        debug="true" debuglevel="lines,vars,source">
+      <classpath refid="project.class.path"/>
+    </javac>
+    <copy todir="war/WEB-INF/classes">
+      <fileset dir="src" excludes="**/*.java"/>
+    </copy>
+  </target>
+
+  <target name="gwtc" depends="javac, cleanJS" description="GWT compile to JavaScript">
+    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+      <classpath>
+        <pathelement location="src"/>
+        <path refid="project.class.path"/>
+      </classpath>
+      <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+      <jvmarg value="-Xms512M"/>
+      <jvmarg value="-Xmx1024M"/>
+      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+      <arg value="com.kredisoft.xmaster.XMaster"/>
+    </java>
+  </target>
+
+  <target name="hosted" depends="javac" description="Run hosted mode">
+    <java failonerror="true" fork="true" classname="com.google.gwt.dev.HostedMode">
+      <classpath>
+        <pathelement location="src"/>
+        <path refid="project.class.path"/>
+      </classpath>
+      <jvmarg value="-Xmx1024M"/>
+      <arg value="-startupUrl"/>
+      <arg value="XMaster.html"/>
+      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+      <arg value="com.kredisoft.xmaster.XMaster"/>
+    </java>
+  </target>
+
+  <target name="build" depends="gwtc" description="Build this project" />
+	
+<!--
+  <gwtcompile destdir="www" optimize="true" logLevel="all" style="pretty">
+	  <fileset dir="src">
+	  <include name="/*.gwt.xml"/>
+	  </fileset>
+  </gwtcompile>
+-->	
+  <target name="war" depends="build" description="Create a war file">
+    <zip destfile="XMaster.war" basedir="war"/>
+  </target>
+
+<!-- kredisoft.com -->
+					
+	<target name="setup-kredisoft.com-server" description="Setup a kredisoft.com params">
+		<copy todir="src" overwrite="true">
+	      <fileset file="setup/kredisoft.com/xmaster.properties"/>
+	    </copy>
+	    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+	      <fileset file="setup/kredisoft.com/SqlMapConfig.properties"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com/XMaster.html"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com/robots.txt"/>
+	    </copy>
+	    <copy todir="war/WEB-INF" overwrite="true">
+	      <fileset file="setup/kredisoft.com/XMasterApplicationContext.xml"/>
+	    </copy>
+	    <copy todir="src" overwrite="true">
+	      <fileset file="setup/kredisoft.com/log4j.xml"/>
+	    </copy>
+		<copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com/favicon.ico"/>
+	    </copy>
+	</target>
+
+	<target name="setup-kredisoft.com-localhost" depends="setup-kredisoft.com-server, setup-log-localhost" description="Setup a kredisoft.com localhost params">
+	</target>
+
+	<target name="war-nocompile-kredisoft.com" depends="setup-kredisoft.com-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com"/>
+	</target>
+
+	<target name="war-kredisoft.com" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com/XMaster.war" basedir="war"/>
+	</target>
+	
+	<!-- kredisoft.com-bezuminka -->
+						
+	<target name="setup-kredisoft.com-bezuminka-server" description="Setup a kredisoft.com params">
+		<copy todir="src" overwrite="true">
+	      <fileset file="setup/kredisoft.com-bezuminka/xmaster.properties"/>
+	    </copy>
+	    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+	      <fileset file="setup/kredisoft.com-bezuminka/SqlMapConfig.properties"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-bezuminka/XMaster.html"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-bezuminka/robots.txt"/>
+	    </copy>
+	    <copy todir="war/WEB-INF" overwrite="true">
+	      <fileset file="setup/kredisoft.com-bezuminka/XMasterApplicationContext.xml"/>
+	    </copy>
+	    <copy todir="src" overwrite="true">
+	      <fileset file="setup/kredisoft.com-bezuminka/log4j.xml"/>
+	    </copy>
+		<copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-bezuminka/favicon.ico"/>
+	    </copy>
+	</target>
+
+	<target name="setup-kredisoft.com-bezuminka-localhost" depends="setup-kredisoft.com-bezuminka-server, setup-log-localhost" description="Setup a kredisoft.com localhost params">
+	</target>
+
+	<target name="war-nocompile-kredisoft.com-bezuminka" depends="setup-kredisoft.com-bezuminka-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-bezuminka"/>
+	</target>
+
+	<target name="war-kredisoft.com-bezuminka" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-bezuminka/XMaster.war" basedir="war"/>
+	</target>
+	
+<!-- kredisoft.com-sl -->
+						
+	<target name="setup-kredisoft.com-sl-server" description="Setup a kredisoft.com-sl params">
+		<copy todir="src" overwrite="true">
+	      <fileset file="setup/kredisoft.com-sl/xmaster.properties"/>
+	    </copy>
+	    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+	      <fileset file="setup/kredisoft.com-sl/SqlMapConfig.properties"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-sl/XMaster.html"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-sl/robots.txt"/>
+	    </copy>
+	    <copy todir="war/WEB-INF" overwrite="true">
+	      <fileset file="setup/kredisoft.com-sl/XMasterApplicationContext.xml"/>
+	    </copy>
+	    <copy todir="src" overwrite="true">
+	      <fileset file="setup/kredisoft.com-sl/log4j.xml"/>
+	    </copy>
+		<copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-sl/favicon.ico"/>
+	    </copy>
+	</target>
+
+	<target name="setup-kredisoft.com-sl-localhost" depends="setup-kredisoft.com-sl-server, setup-log-localhost" description="Setup a kredisoft.com-sl localhost params">
+	</target>
+
+	<target name="war-nocompile-kredisoft.com-sl" depends="setup-kredisoft.com-sl-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-sl"/>
+	</target>
+
+	<target name="war-kredisoft.com-sl" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-sl/XMaster.war" basedir="war"/>
+	</target>
+		
+<!-- LAWYER -->
+				
+	<target name="setup-lawyer-server" description="Setup a Lawyer params">
+		<copy todir="src" overwrite="true">
+	      <fileset file="setup/lawyer/xmaster.properties"/>
+	    </copy>
+	    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+	      <fileset file="setup/lawyer/SqlMapConfig.properties"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/lawyer/XMaster.html"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/lawyer/robots.txt"/>
+	    </copy>
+	    <copy todir="war/WEB-INF" overwrite="true">
+	      <fileset file="setup/lawyer/XMasterApplicationContext.xml"/>
+	    </copy>
+	    <copy todir="src" overwrite="true">
+	      <fileset file="setup/lawyer/log4j.xml"/>
+	    </copy>
+		<copy todir="war" overwrite="true">
+	      <fileset file="setup/lawyer/favicon.ico"/>
+	    </copy>
+	</target>
+
+	<target name="setup-lawyer-localhost" depends="setup-lawyer-server, setup-log-localhost" description="Setup a Lawyer localhost params">
+	</target>
+
+	<target name="war-nocompile-lawyer" depends="setup-lawyer-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/lawyer"/>
+	</target>
+	
+<!-- DEMO -->
+			
+	<target name="setup-kredisoft.com-test-server" description="Setup a Demo params">
+		<copy todir="src" overwrite="true">
+	      <fileset file="setup/kredisoft.com-test/xmaster.properties"/>
+	    </copy>
+	    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+	      <fileset file="setup/kredisoft.com-test/SqlMapConfig.properties"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-test/XMaster.html"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-test/robots.txt"/>
+	    </copy>
+	    <copy todir="war/WEB-INF" overwrite="true">
+	      <fileset file="setup/kredisoft.com-test/XMasterApplicationContext.xml"/>
+	    </copy>
+	    <copy todir="src" overwrite="true">
+	      <fileset file="setup/kredisoft.com-test/log4j.xml"/>
+	    </copy>
+		<copy todir="war" overwrite="true">
+	      <fileset file="setup/kredisoft.com-test/favicon.ico"/>
+	    </copy>
+	</target>
+
+	<target name="setup-kredisoft.com-test-localhost" depends="setup-kredisoft.com-test-server, setup-log-localhost" description="Setup a Demo localhost params">
+	</target>
+
+	<target name="war-nocompile-kredisoft.com-test" depends="setup-kredisoft.com-test-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-test"/>
+	</target>
+
+	<target name="war-kredisoft.com-test" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-test/XMaster.war" basedir="war"/>
+	</target>
+	  	
+<!-- ALLIANCE -->
+		
+  <target name="setup-kredisoft.com-al-server" description="Setup a Alliance params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-al/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/kredisoft.com-al/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-al/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-al/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/kredisoft.com-al/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-al/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-al/favicon.ico"/>
+    </copy>
+  </target>
+
+  <target name="setup-kredisoft.com-al-localhost" depends="setup-kredisoft.com-al-server, setup-log-localhost" description="Setup a Alliance localhost params">
+  </target>
+
+	<target name="war-nocompile-kredisoft.com-al" depends="setup-kredisoft.com-al-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-al"/>
+	</target>
+
+	<target name="war-kredisoft.com-al" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-al/XMaster.war" basedir="war"/>
+	</target>
+
+<!-- ACADEMICALTRAVEL -->
+			
+  <target name="setup-kredisoft.com-at-server" description="Setup a AcademicalTravel params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-at/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/kredisoft.com-at/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-at/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-at/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/kredisoft.com-at/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-at/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-at/favicon.ico"/>
+    </copy>
+  </target>
+
+	<target name="setup-kredisoft.com-at-localhost" depends="setup-kredisoft.com-at-server, setup-log-localhost" description="Setup a AcademicalTravel localhost params">
+	</target>
+	
+	<target name="war-nocompile-kredisoft.com-at" depends="setup-kredisoft.com-at-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-at"/>
+	</target>
+	
+	<target name="war-kredisoft.com-at" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-at/XMaster.war" basedir="war"/>
+	</target>
+
+<!-- AMURSKIY.COM -->
+					
+  <target name="setup-kredisoft.com-amurskiy-server" description="Setup a amurskiy params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-amurskiy/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/kredisoft.com-amurskiy/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-amurskiy/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-amurskiy/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/kredisoft.com-amurskiy/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-amurskiy/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-amurskiy/favicon.ico"/>
+    </copy>
+	</target>
+		<target name="setup-kredisoft.com-amurskiy-localhost" depends="setup-kredisoft.com-amurskiy-server, setup-log-localhost" description="Setup a amurskiy localhost params">
+	</target>
+		
+	<target name="war-nocompile-kredisoft.com-amurskiy" depends="setup-kredisoft.com-amurskiy-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-amurskiy"/>
+	</target>
+		
+	<target name="war-kredisoft.com-amurskiy" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-amurskiy/XMaster.war" basedir="war"/>
+	</target>
+
+<!-- BEER  -->
+						
+  <target name="setup-kredisoft.com-beer-server" description="Setup a Beer params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-beer/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/kredisoft.com-beer/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-beer/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-beer/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/kredisoft.com-beer/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-beer/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-beer/favicon.ico"/>
+    </copy>
+	</target>
+		<target name="setup-kredisoft.com-beer-localhost" depends="setup-kredisoft.com-beer-server, setup-log-localhost" description="Setup a beer localhost params">
+	</target>
+			
+	<target name="war-nocompile-kredisoft.com-beer" depends="setup-kredisoft.com-beer-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-beer"/>
+	</target>
+		
+	<target name="war-kredisoft.com-beer" depends="build" description="Create a beer war file">
+	  <zip destfile="war.out/kredisoft.com-beer/XMaster.war" basedir="war"/>
+	</target>
+
+<!-- BONBON.UA -->
+				
+  <target name="setup-kredisoft.com-bonbon-server" description="Setup a Bonbon params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-bonbon/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/kredisoft.com-bonbon/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-bonbon/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-bonbon/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/kredisoft.com-bonbon/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-bonbon/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-bonbon/favicon.ico"/>
+    </copy>
+	</target>
+		<target name="setup-kredisoft.com-bonbon-localhost" depends="setup-kredisoft.com-bonbon-server, setup-log-localhost" description="Setup a bonbon localhost params">
+	</target>
+	
+	<target name="war-nocompile-kredisoft.com-bonbon" depends="setup-kredisoft.com-bonbon-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-bonbon"/>
+	</target>
+	
+	<target name="war-kredisoft.com-bonbon" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-bonbon/XMaster.war" basedir="war"/>
+	</target>
+
+<!-- PHOTO.KREDISOFT.COM -->
+							
+  <target name="setup-kredisoft.com-photo-server" description="Setup a photo params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-photo/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/kredisoft.com-photo/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-photo/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-photo/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/kredisoft.com-photo/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-photo/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-photo/favicon.ico"/>
+    </copy>
+	</target>
+		<target name="setup-kredisoft.com-photo-localhost" depends="setup-kredisoft.com-photo-server, setup-log-localhost" description="Setup a photo localhost params">
+	</target>
+				
+	<target name="war-nocompile-kredisoft.com-photo" depends="setup-kredisoft.com-photo-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-photo"/>
+	</target>
+				
+	<target name="war-kredisoft.com-photo" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-photo/XMaster.war" basedir="war"/>
+	</target>
+	
+<!-- IGOR.KREDISOFT.COM -->
+						
+  <target name="setup-kredisoft.com-igor-server" description="Setup a igor params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-igor/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/kredisoft.com-igor/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-igor/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-igor/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/kredisoft.com-igor/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/kredisoft.com-igor/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/kredisoft.com-igor/favicon.ico"/>
+    </copy>
+	</target>
+		<target name="setup-kredisoft.com-igor-localhost" depends="setup-kredisoft.com-igor-server, setup-log-localhost" description="Setup a igor localhost params">
+	</target>
+			
+	<target name="war-nocompile-kredisoft.com-igor" depends="setup-kredisoft.com-igor-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/kredisoft.com-igor"/>
+	</target>
+			
+	<target name="war-kredisoft.com-igor" depends="build" description="Create a war file">
+	  <zip destfile="war.out/kredisoft.com-igor/XMaster.war" basedir="war"/>
+	</target>
+
+<!-- RAIDER -->
+			
+	<target name="setup-raider-server" description="Setup a raider params">
+	    <copy todir="src" overwrite="true">
+	      <fileset file="setup/raider/xmaster.properties"/>
+	    </copy>
+	    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+	      <fileset file="setup/raider/SqlMapConfig.properties"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/raider/XMaster.html"/>
+	    </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/raider/robots.txt"/>
+	    </copy>
+	    <copy todir="war/WEB-INF" overwrite="true">
+	      <fileset file="setup/raider/XMasterApplicationContext.xml"/>
+	    </copy>
+	    <copy todir="src" overwrite="true">
+	      <fileset file="setup/raider/log4j.xml"/>
+	    </copy>
+		<copy todir="war" overwrite="true">
+	      <fileset file="setup/raider/favicon.ico"/>
+	    </copy>
+	  </target>
+
+	<target name="setup-raider-localhost" depends="setup-raider-server, setup-log-localhost" description="Setup a raider localhost params">
+	</target>
+
+	<target name="war-nocompile-raider" depends="setup-raider-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/raider"/>
+	</target>
+	
+<!-- STUDENTLAND -->
+	
+  <target name="setup-studentland-server" description="Setup a Studentland params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/studentland/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/studentland/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/studentland/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/studentland/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/studentland/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/studentland/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/studentland/favicon.ico"/>
+    </copy>
+  </target>
+
+  <target name="setup-studentland-localhost" depends="setup-studentland-server, setup-log-localhost" description="Setup a Studentland localhost params">
+
+  </target>
+
+	<target name="war-nocompile-studentland" depends="setup-studentland-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/studentland"/>
+	</target>
+
+	<target name="war-studentland" depends="build" description="Create a war file">
+	  <zip destfile="war.out/studentland/XMaster.war" basedir="war"/>
+	</target>
+	
+<!-- ISIC -->
+	
+  <target name="setup-isic-server" description="Setup a Isic params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/isic/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/isic/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/isic/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/isic/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/isic/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/isic/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/isic/favicon.ico"/>
+    </copy>
+  </target>
+
+  <target name="setup-isic-localhost" depends="setup-isic-server, setup-log-localhost" description="Setup a Isic localhost params">
+  </target>
+
+  <target name="war-nocompile-isic" depends="setup-isic-server" description="Create a war file">
+    <zip destfile="XMaster.war" basedir="war.out/isic"/>
+  </target>
+	
+  <target name="war-isic" depends="build" description="Create a war file">
+    <zip destfile="war.out/isic/XMaster.war" basedir="war"/>
+  </target>	
+
+<!-- ISIC -->
+		
+  <target name="setup-isic-biz-server" description="Setup a Isic.biz.ua params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/isic.biz.ua/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/isic.biz.ua/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/isic.biz.ua/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/isic.biz.ua/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/isic.biz.ua/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/isic.biz.ua/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/isic.biz.ua/favicon.ico"/>
+    </copy>
+  </target>
+
+  <target name="setup-isic-biz-localhost" depends="setup-isic-biz-server, setup-log-localhost" description="Setup a Isic localhost params">
+  </target>
+
+  <target name="war-nocompile-isic-biz" depends="setup-isic-biz-server" description="Create a war file">
+    <zip destfile="XMaster.war" basedir="war.out/isic.biz"/>
+  </target>
+		
+  <target name="war-isic-biz" depends="build" description="Create a war file">
+    <zip destfile="war.out/isic.biz/XMaster.war" basedir="war"/>
+  </target>	
+	
+<!-- PROKOPENKO -->
+			
+	<target name="setup-prok-server" description="Setup a Prokopenko params">
+	  <copy todir="src" overwrite="true">
+	    <fileset file="setup/prokopenko/xmaster.properties"/>
+	  </copy>
+	  <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+	    <fileset file="setup/prokopenko/SqlMapConfig.properties"/>
+	  </copy>
+	  <copy todir="war" overwrite="true">
+	    <fileset file="setup/prokopenko/XMaster.html"/>
+	  </copy>
+	    <copy todir="war" overwrite="true">
+	      <fileset file="setup/prokopenko/robots.txt"/>
+	    </copy>
+	  <copy todir="war/WEB-INF" overwrite="true">
+	    <fileset file="setup/prokopenko/XMasterApplicationContext.xml"/>
+	  </copy>
+	  <copy todir="src" overwrite="true">
+	    <fileset file="setup/prokopenko/log4j.xml"/>
+	  </copy>
+		<copy todir="war" overwrite="true">
+	      <fileset file="setup/prokopenko/favicon.ico"/>
+	    </copy>
+	</target>
+
+	<target name="setup-prok-localhost" depends="setup-prok-server, setup-log-localhost" description="Setup a Prokopenko localhost params">
+	</target>
+	
+  	<target name="war-nocompile-prok" depends="setup-prok-server" description="Create a war file">
+		<zip destfile="XMaster.war" basedir="war.out/prok"/>
+  	</target>
+	
+<!-- BOOKING -->
+		
+	<target name="setup-booking-server" description="Setup a Booking params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/booking/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/booking/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/booking/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/booking/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/booking/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/booking/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/booking/favicon.ico"/>
+    </copy>
+	</target>
+
+	<target name="setup-booking-localhost" depends="setup-booking-server, setup-log-localhost" description="Setup a Booking localhost params">
+	</target>
+
+	<target name="war-nocompile-booking" depends="setup-booking-server" description="Create a Booking war file">
+		<zip destfile="XMaster.war" basedir="war.out/booking"/>
+	</target>
+
+	<target name="war-booking" depends="build" description="Create a Booking war file">
+	  <zip destfile="war.out/booking/XMaster.war" basedir="war"/>
+	</target>
+
+<!-- VSPOMNIOBOMNE -->
+			
+	<target name="setup-vspomni-server" description="Setup a Vspomni params">
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/vspomni/xmaster.properties"/>
+    </copy>
+    <copy todir="src/com/kredisoft/xmaster/server" overwrite="true">
+      <fileset file="setup/vspomni/SqlMapConfig.properties"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/vspomni/XMaster.html"/>
+    </copy>
+    <copy todir="war" overwrite="true">
+      <fileset file="setup/vspomni/robots.txt"/>
+    </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="setup/vspomni/XMasterApplicationContext.xml"/>
+    </copy>
+    <copy todir="src" overwrite="true">
+      <fileset file="setup/vspomni/log4j.xml"/>
+    </copy>
+	<copy todir="war" overwrite="true">
+      <fileset file="setup/vspomni/favicon.ico"/>
+    </copy>
+	</target>
+
+	<target name="setup-vspomni-localhost" depends="setup-vspomni-server, setup-log-localhost" description="Setup a Vspomni localhost params">
+	</target>
+
+	<target name="war-nocompile-vspomni" depends="setup-vspomni-server" description="Create a Vspomni war file">
+		<zip destfile="XMaster.war" basedir="war.out/vspomni"/>
+	</target>
+
+	<target name="war-vspomni" depends="build" description="Create a Vspomni war file">
+	  <zip destfile="war.out/vspomni/XMaster.war" basedir="war"/>
+	</target>
+	
+<!-- ПРОЧЕЕ -->
+	
+  <target name="setup-log-localhost" description="Setup a Log local">
+	 <copy todir="src" overwrite="true">
+	   <fileset file="setup/log4j.xml"/>
+	 </copy>
+    <copy todir="war/WEB-INF" overwrite="true">
+      <fileset file="src/XMasterApplicationContext.xml"/>
+    </copy>
+  </target>
+	
+  <target name="clean" description="Cleans this project">
+    <delete dir="war/WEB-INF/classes" failonerror="false" />
+    <delete dir="war/xmaster" failonerror="false" />
+  </target>
+
+  <target name="cleanJS" description="Cleans JavaScript files">
+    <delete dir="war/xmaster" failonerror="false" />
+  </target>
+	
+</project>

@@ -1,0 +1,5 @@
+*.class
+war.out/
+war/WEB-INF/**/*.class
+war/**/*.cache.html
+XMaster.war 
